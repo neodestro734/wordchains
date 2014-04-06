@@ -3,7 +3,7 @@ require 'set'
 class WordChainer
 	
 	#dictionary is a set
-	attr_accessor :dictionary, :current_words, :all_seen_words 
+	attr_accessor :dictionary, :current_words, :all_seen_words, :all_current_words
 
 	#DONE
 	def initialize(dictionary_file)
@@ -32,14 +32,17 @@ class WordChainer
 		end
 	end
 
-	#WORKING
+	#DONE
 	def run(source, target)
 		@current_words = [source]
 		@all_seen_words = [source]
+		@all_current_words = [[nil]]
 
 		until @current_words.empty?
 			explore_current_words
 		end
+
+		build_path(source, target)
 
 	end
 
@@ -56,9 +59,54 @@ class WordChainer
 		end
 
 		@current_words = new_current_words
+		@all_current_words << @current_words
+	end
+
+	#DONE
+	def build_path(source, target)
+		# find the index where the target is found
+		i_with_target = find_target_i_in_all_words(target)
+
+		# path = [target]
+		path = build_path_helper([target], i_with_target)
+
+		(path << source).reverse
+	end
+
+	private
+	
+	#WORKING -> make this recursive
+	def build_path_helper(path, i_with_target)
+		i = i_with_target - 1
+
+		until i < 1
+			adj_w_src = adjacent_words(path.last)
+
+			@all_current_words[i].each do |all_word|
+				if adj_w_src.include?(all_word)
+					path << all_word
+					break
+				end
+			end
+
+			i -= 1
+		end
+		path
+	end
+
+	#DONE
+	def find_target_i_in_all_words(target)
+		i_with_target = nil
+		(0...@all_current_words.length).to_a.reverse.each do |cur_words_i|
+			if @all_current_words[cur_words_i].include?(target)
+				i_with_target = cur_words_i
+				break
+			end
+		end
+		i_with_target
 	end
 
 end
 
 # wc = WordChainer.new('dictionary.txt')
-# wc.run('duck','ruby')
+# wc.run('cat','dog')
