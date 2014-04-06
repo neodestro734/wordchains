@@ -34,16 +34,20 @@ class WordChainer
 
 	#DONE
 	def run(source, target)
+		start_time = Time.now
 		@current_words = [source]
 		@all_seen_words = [source]
 		@all_current_words = [[nil]]
 
-		until @current_words.empty?
+		until @current_words.empty? || @all_seen_words.include?(target)
 			explore_current_words
 		end
 
-		build_path(source, target)
-
+		chain = build_path(source, target)
+		end_time = Time.now
+		total_time = end_time - start_time
+		puts "#{chain}"
+		puts "It tooks #{total_time} to find this chain."
 	end
 
 	#DONE
